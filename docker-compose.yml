@@ -4,23 +4,30 @@ services:
     image: postgres:16-alpine
     environment:
       POSTGRES_DB: ${POSTGRES_DB}
-      POSTGRES_USER: ${POSTGRES_USER}
       POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
     ports:
       - "5432:5432"
+  ### create user?
 
-#  web:
-#    image: your_web_image
-#    container_name: my_web_container
-#    ports:
-#      - "8080:8080"
-#    depends_on:
-#      - db
+  # TIME??? TIME??? TIME??? TIME???
+  # TIME??? TIME??? TIME??? TIME???
+  # TIME??? TIME??? TIME??? TIME???
+  #db-1  | 2024-08-09 06:18:37.013 UTC [40] LOG:  listening on Unix socket "/var/run/postgresql/.s.PGSQL.5432"
+  #db-1  | 2024-08-09 06:18:37.015 UTC [43] LOG:  database system was shut down at 2024-08-09 06:18:36 UTC
+  #db-1  | 2024-08-09 06:18:37.017 UTC [40] LOG:  database system is ready to accept connections
 
 
-# TIME??? TIME??? TIME??? TIME???
-# TIME??? TIME??? TIME??? TIME???
-# TIME??? TIME??? TIME??? TIME???
-#db-1  | 2024-08-09 06:18:37.013 UTC [40] LOG:  listening on Unix socket "/var/run/postgresql/.s.PGSQL.5432"
-#db-1  | 2024-08-09 06:18:37.015 UTC [43] LOG:  database system was shut down at 2024-08-09 06:18:36 UTC
-#db-1  | 2024-08-09 06:18:37.017 UTC [40] LOG:  database system is ready to accept connections
+
+  app:
+    image: letstock:none
+    environment:
+       SPRING_DATASOURCE_URL: ${SPRING_DATASOURCE_URL}
+       SPRING_DATASOURCE_USERNAME: ${SPRING_DATASOURCE_USERNAME}
+       SPRING_DATASOURCE_PASSWORD: ${SPRING_DATASOURCE_PASSWORD}
+    ports:
+      - "8080:8080"
+    depends_on:
+      - db
+
+  ### health check?
+
