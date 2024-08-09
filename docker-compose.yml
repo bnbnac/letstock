@@ -5,29 +5,31 @@ services:
     environment:
       POSTGRES_DB: ${POSTGRES_DB}
       POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+      TZ: Asia/Seoul
     ports:
       - "5432:5432"
-  ### create user?
-
-  # TIME??? TIME??? TIME??? TIME???
-  # TIME??? TIME??? TIME??? TIME???
-  # TIME??? TIME??? TIME??? TIME???
-  #db-1  | 2024-08-09 06:18:37.013 UTC [40] LOG:  listening on Unix socket "/var/run/postgresql/.s.PGSQL.5432"
-  #db-1  | 2024-08-09 06:18:37.015 UTC [43] LOG:  database system was shut down at 2024-08-09 06:18:36 UTC
-  #db-1  | 2024-08-09 06:18:37.017 UTC [40] LOG:  database system is ready to accept connections
-
-
+    volumes:
+      - db_data:/var/lib/postgresql/data
+    healthcheck:
+      test: [ "CMD-SHELL", "pg_isready -U postgres -d ${POSTGRES_DB} -h localhost" ]
+      interval: 5s
+      retries: 10
+      start_period: 10s
 
   app:
-    image: letstock:none
+    build:
+      context: .
+      dockerfile: Dockerfile
     environment:
-       SPRING_DATASOURCE_URL: ${SPRING_DATASOURCE_URL}
-       SPRING_DATASOURCE_USERNAME: ${SPRING_DATASOURCE_USERNAME}
-       SPRING_DATASOURCE_PASSWORD: ${SPRING_DATASOURCE_PASSWORD}
+       SPRING_DATASOURCE_URL: jdbc:postgresql://db:5432/${POSTGRES_DB}
+       SPRING_DATASOURCE_USERNAME: ${SPRING_DATASOURCE_USERNAME} # POSTGRES_USER <- super user
+       SPRING_DATASOURCE_PASSWORD: ${SPRING_DATASOURCE_PASSWORD} # 배포시엔 스크립트로 db 컨테이너에서 일반유저를 만든다?
+       TZ: Asia/Seoul
     ports:
       - "8080:8080"
     depends_on:
-      - db
+      db:
+        condition: service_healthy
 
-  ### health check?
-
+volumes:
+  db_data:
