@@ -1,0 +1,1 @@
+insert into member (id, hello) values (1, 0);
