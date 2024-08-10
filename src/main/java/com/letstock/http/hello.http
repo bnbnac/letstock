@@ -1,0 +1,29 @@
+### auth mail
+POST http://localhost:8080/code/mail
+Content-Type: application/json
+
+{
+  "email": "bnbnac@naver.com"
+}
+
+### verify
+POST http://localhost:8080/code/mail/verification
+Content-Type: application/json
+
+{
+  "email": "bnbnac@naver.com",
+  "code": "94842215"
+}
+
+### signup 코드스케줄러와
+POST http://localhost:8080/auth/signup
+Content-Type: application/json
+
+{
+  "email": "bnbnac@naver.com",
+  "password": "1234",
+  "name": "hello",
+  "profileImage": "imgurl",
+  "greetings": "hi there",
+  "code": "94842215"
+}
