@@ -24,6 +24,13 @@ public class AuthService {
         memberRepository.save(createMember(signup, encodedPassword));
     }
 
+    private void validateSignedUpMail(String email) {
+        memberRepository.findByEmail(email)
+                .ifPresent(m -> {
+                    throw new InvalidRequest("email", "이미 가입된 이메일입니다");
+                });
+    }
+
     private Member createMember(Signup signup, String encodedPassword) {
         return Member.builder()
                 .email(signup.getEmail())
@@ -32,13 +39,6 @@ public class AuthService {
                 .profileImage(signup.getProfileImage())
                 .greetings(signup.getGreetings())
                 .build();
-    }
-
-    private void validateSignedUpMail(String email) {
-        memberRepository.findByEmail(email)
-                .ifPresent(m -> {
-                    throw new InvalidRequest("email", "이미 가입된 이메일입니다");
-                });
     }
 
 }

@@ -1,8 +1,8 @@
 package com.letstock.service.member.controller;
 
-import com.letstock.service.member.request.MailVerify;
 import com.letstock.service.member.exception.MailSendFail;
 import com.letstock.service.member.request.MailSend;
+import com.letstock.service.member.request.MailVerify;
 import com.letstock.service.member.service.CodeService;
 import com.letstock.service.member.service.MailService;
 import jakarta.validation.Valid;
