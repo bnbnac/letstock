@@ -3,7 +3,7 @@ POST http://localhost:8080/code/mail
 Content-Type: application/json
 
 {
-  "email": "seongjin0000@gmail.com"
+  "email": "seongjin0000@gmail.com123"
 }
 
 ### verify
@@ -36,3 +36,7 @@ Content-Type: application/json
   "email": "seongjin0000@gmail.com",
   "password": "1234"
 }
+
+### test
+GET http://localhost:8080/auth/test
+Content-Type: application/json

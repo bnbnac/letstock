@@ -8,10 +8,10 @@ import java.util.List;
 
 @Getter
 public class MemberPrincipal extends User {
-    private final Long memberId;
+    private final Long id;
 
     public MemberPrincipal(Member member) {
         super(member.getEmail(), member.getPassword(), List.of());
-        this.memberId = member.getId();
+        this.id = member.getId();
     }
 }

@@ -6,11 +6,10 @@ import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.http.ResponseCookie;
-
-import java.time.Duration;
+import org.springframework.stereotype.Component;
 
 @Slf4j
+@Component
 @RequiredArgsConstructor
 public class AuthUtil {
 
@@ -40,14 +39,15 @@ public class AuthUtil {
         throw new Unauthorized();
     }
 
-    public ResponseCookie createCookie(String cookieName, String cookieValue, Long maxAge) {
-        return ResponseCookie.from(cookieName, cookieValue)
-                .path("/")
-                .httpOnly(true)
-                .secure(authProperty.isCookieSecure())
-                .maxAge(Duration.ofDays(maxAge))
-                .sameSite(authProperty.getSameSite())
-                .build();
+
+    public Cookie createCookie(String cookieName, String cookieValue, Long maxAge) {
+        Cookie cookie = new Cookie(cookieName, cookieValue);
+        cookie.setPath("/");
+        cookie.setHttpOnly(true);
+        cookie.setSecure(authProperty.isCookieSecure());
+        cookie.setMaxAge(maxAge.intValue() * 86400); // 24 * 60 * 60
+
+        return cookie;
     }
 
 }

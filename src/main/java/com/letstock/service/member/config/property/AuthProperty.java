@@ -9,9 +9,14 @@ import org.springframework.boot.context.properties.ConfigurationProperties;
 @ConfigurationProperties(prefix = "auth")
 public class AuthProperty {
 
+    public static final String ID = "id";
     public static final String MAIL_SENDER = "tftad.com@gmail.com";
 
     private Long authCodeDurationMinutes;
     private Long emailAuthCodeDurationMinutes;
+    private boolean cookieSecure;
+    private String sameSite;
+    private String accessTokenCookieName;
+    private Long accessTokenCookieMaxAgeInDays;
 
 }
