@@ -49,4 +49,20 @@ public class Member {
         this.profileImage = profileImage;
         this.greetings = greetings;
     }
+
+    public MemberEditor.MemberEditorBuilder toEditorBuilder() {
+        return MemberEditor.builder()
+                .password(password)
+                .name(name)
+                .profileImage(profileImage)
+                .greetings(greetings);
+    }
+
+    public void edit(MemberEditor memberEditor) {
+        this.password = memberEditor.getPassword();
+        this.name = memberEditor.getName();
+        this.profileImage = memberEditor.getProfileImage();
+        this.greetings = memberEditor.getGreetings();
+        this.updatedAt = LocalDateTime.now();
+    }
 }

@@ -19,6 +19,7 @@ public class CodeService {
     private final AuthProperty authProperty;
     private final CodeRepository codeRepository;
 
+    @Transactional
     public void save(String code, String email) {
         List<Code> codes = codeRepository.findByEmail(email);
         codeRepository.deleteAll(codes);
@@ -27,7 +28,7 @@ public class CodeService {
         codeRepository.save(newCode);
     }
 
-    public Code createCode(String code, String email, Long durationMinutes) {
+    private Code createCode(String code, String email, Long durationMinutes) {
         return Code.builder()
                 .email(email)
                 .code(code)
@@ -56,7 +57,7 @@ public class CodeService {
         return true;
     }
 
-    public Code findCode(String code, String mail) {
+    private Code findCode(String code, String mail) {
         return codeRepository.findTopByCodeAndEmailOrderByCreatedAtDesc(code, mail)
                 .orElseThrow(() -> new InvalidRequest("code", "code does not match"));
     }
