@@ -15,6 +15,9 @@ public class JwtProperty {
     @Setter
     private Long maxAgeInMinutes;
 
+    @Setter
+    private boolean cookieSecure;
+
     public void setKey(String key) {
         this.key = Base64.getDecoder().decode(key);
     }

@@ -1,4 +1,4 @@
-package com.letstock.service.member.request;
+package com.letstock.service.member.dto.request;
 
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;

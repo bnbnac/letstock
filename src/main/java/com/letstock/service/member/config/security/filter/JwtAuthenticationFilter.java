@@ -1,14 +1,23 @@
 package com.letstock.service.member.config.security.filter;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.letstock.service.member.config.security.MemberPrincipal;
+import com.letstock.service.member.domain.Member;
+import com.letstock.service.member.exception.MemberNotFound;
+import com.letstock.service.member.repository.MemberRepository;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.Getter;
 import org.springframework.http.HttpMethod;
+import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.AuthenticationServiceException;
+import org.springframework.security.authentication.ProviderManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.authentication.dao.DaoAuthenticationProvider;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.AuthenticationException;
+import org.springframework.security.core.userdetails.UserDetailsService;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.authentication.AbstractAuthenticationProcessingFilter;
 
 import java.io.IOException;
@@ -17,9 +26,29 @@ public class JwtAuthenticationFilter extends AbstractAuthenticationProcessingFil
 
     private final ObjectMapper objectMapper;
 
-    public JwtAuthenticationFilter(ObjectMapper objectMapper, String loginUrl) {
+    public JwtAuthenticationFilter(
+            String loginUrl,
+            ObjectMapper objectMapper,
+            MemberRepository memberRepository,
+            PasswordEncoder passwordEncoder
+    ) {
         super(loginUrl);
         this.objectMapper = objectMapper;
+        setCustomAuthenticationManager(memberRepository, passwordEncoder);
+    }
+
+    private void setCustomAuthenticationManager(MemberRepository memberRepository, PasswordEncoder passwordEncoder) {
+        UserDetailsService userDetailsService = email -> {
+            Member member = memberRepository.findByEmail(email).orElseThrow(MemberNotFound::new);
+            return new MemberPrincipal(member);
+        };
+
+        DaoAuthenticationProvider provider = new DaoAuthenticationProvider();
+        provider.setUserDetailsService(userDetailsService);
+        provider.setPasswordEncoder(passwordEncoder);
+        AuthenticationManager authenticationManager = new ProviderManager(provider);
+
+        setAuthenticationManager(authenticationManager);
     }
 
     @Override
@@ -33,7 +62,7 @@ public class JwtAuthenticationFilter extends AbstractAuthenticationProcessingFil
         UsernamePasswordAuthenticationToken token = UsernamePasswordAuthenticationToken
                 .unauthenticated(emailPassword.getEmail(), emailPassword.getPassword());
 
-        token.setDetails(authenticationDetailsSource.buildDetails(request));
+        token.setDetails(authenticationDetailsSource.buildDetails(request)); // remoteAddr, sessionId(미사용)
         return getAuthenticationManager().authenticate(token);
     }
 

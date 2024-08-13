@@ -3,7 +3,6 @@ package com.letstock.service.member.config.security.filter;
 import com.letstock.service.member.config.jwt.JwtUtil;
 import com.letstock.service.member.config.property.AuthProperty;
 import com.letstock.service.member.controller.AuthUtil;
-import com.letstock.service.member.exception.Unauthorized;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.ExpiredJwtException;
 import jakarta.servlet.FilterChain;
@@ -12,7 +11,6 @@ import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.NonNull;
-import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
@@ -23,15 +21,26 @@ import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.web.filter.OncePerRequestFilter;
 
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
 
 @Slf4j
-@RequiredArgsConstructor
 public class JwtAuthorizationFilter extends OncePerRequestFilter {
 
     private final JwtUtil jwtUtil;
     private final AuthUtil authUtil;
     private final AuthProperty authProperty;
     private final UserDetailsService userDetailsService;
+    private final List<String> permittedUrls;
+
+    public JwtAuthorizationFilter(JwtUtil jwtUtil, AuthUtil authUtil, AuthProperty authProperty,
+                                  UserDetailsService userDetailsService, List<String> permittedUrls) {
+        this.jwtUtil = jwtUtil;
+        this.authUtil = authUtil;
+        this.authProperty = authProperty;
+        this.userDetailsService = userDetailsService;
+        this.permittedUrls = new ArrayList<>(permittedUrls);
+    }
 
     @Override
     protected void doFilterInternal(
@@ -40,17 +49,30 @@ public class JwtAuthorizationFilter extends OncePerRequestFilter {
             @NonNull FilterChain filterChain
     ) throws ServletException, IOException {
 
-        Cookie[] cookies = authUtil.extractCookies(request);
-        String accessToken = authUtil.extractValueByCookieName(cookies, authProperty.getAccessTokenCookieName());
-
-        try {
-            Claims claims = jwtUtil.validateAndParseToken(accessToken).getPayload();
-            setAuthentication(extractId(claims));
-        } catch (ExpiredJwtException e) {
-            throw new Unauthorized("Expired JWT token");
+        String path = request.getRequestURI();
+        for (String permittedUrl : permittedUrls) {
+            if (path.startsWith(permittedUrl)) {
+                filterChain.doFilter(request, response);
+                return;
+            }
         }
 
-        filterChain.doFilter(request, response);
+        try {
+            Cookie[] cookies = authUtil.extractCookies(request);
+            String accessToken = authUtil.extractValueByCookieName(cookies, authProperty.getAccessTokenCookieName());
+
+            Claims claims = jwtUtil.validateAndParseToken(accessToken).getPayload();
+            setAuthentication(extractId(claims));
+            filterChain.doFilter(request, response);
+        } catch (ExpiredJwtException e) {
+            logger.info("Access token expired");
+            request.setAttribute(AuthProperty.EXPIRED_TOKEN, e);
+            filterChain.doFilter(request, response);
+        } catch (Exception e) {
+            logger.error("Authentication error", e);
+            response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
+        }
+
     }
 
     private String extractId(Claims claims) {

@@ -2,8 +2,8 @@ package com.letstock.service.member.service;
 
 import com.letstock.service.common.InvalidRequest;
 import com.letstock.service.member.domain.Member;
+import com.letstock.service.member.dto.request.Signup;
 import com.letstock.service.member.repository.MemberRepository;
-import com.letstock.service.member.request.Signup;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
@@ -15,6 +15,7 @@ public class AuthService {
     private final CodeService codeService;
     private final MemberRepository memberRepository;
     private final PasswordEncoder passwordEncoder;
+    private final RefreshTokenService refreshTokenService;
 
     public void signup(Signup signup) {
         validateSignedUpMail(signup.getEmail());
@@ -41,4 +42,7 @@ public class AuthService {
                 .build();
     }
 
+    public void logout(String refreshToken) {
+        refreshTokenService.delete(refreshToken);
+    }
 }

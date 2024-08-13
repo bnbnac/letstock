@@ -4,8 +4,10 @@ package com.letstock.service.member.config.security;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.letstock.service.member.config.jwt.JwtUtil;
 import com.letstock.service.member.config.property.AuthProperty;
+import com.letstock.service.member.config.property.JwtProperty;
 import com.letstock.service.member.config.security.filter.JwtAuthenticationFilter;
 import com.letstock.service.member.config.security.filter.JwtAuthorizationFilter;
+import com.letstock.service.member.config.security.filter.RefreshTokenFilter;
 import com.letstock.service.member.config.security.handler.Http401Handler;
 import com.letstock.service.member.config.security.handler.Http403Handler;
 import com.letstock.service.member.config.security.handler.LoginFailHandler;
@@ -14,12 +16,10 @@ import com.letstock.service.member.controller.AuthUtil;
 import com.letstock.service.member.domain.Member;
 import com.letstock.service.member.exception.MemberNotFound;
 import com.letstock.service.member.repository.MemberRepository;
+import com.letstock.service.member.service.RefreshTokenService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.security.authentication.AuthenticationManager;
-import org.springframework.security.authentication.ProviderManager;
-import org.springframework.security.authentication.dao.DaoAuthenticationProvider;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
@@ -29,6 +29,9 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
+
+import java.util.Arrays;
+import java.util.List;
 
 @RequiredArgsConstructor
 @Configuration
@@ -40,22 +43,23 @@ public class SecurityConfig {
     private final Http403Handler http403Handler;
     private final LoginSuccessHandler loginSuccessHandler;
     private final LoginFailHandler loginFailHandler;
+    private final RefreshTokenService refreshTokenService;
     private final MemberRepository memberRepository;
     private final JwtUtil jwtUtil;
     private final AuthUtil authUtil;
+    private final JwtProperty jwtProperty;
     private final AuthProperty authProperty;
 
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
-        return http
-                .authorizeHttpRequests(authorize -> authorize
-                        .requestMatchers("/auth/**").permitAll()
-                        .requestMatchers("/code/mail").permitAll()
-                        .requestMatchers("/code/mail/verification").permitAll()
-                        .anyRequest().authenticated()
-                )
-                .addFilterBefore(jwtAuthorizationFilter(), UsernamePasswordAuthenticationFilter.class)
-                .addFilterBefore(jwtAuthenticationFilter(), JwtAuthorizationFilter.class)
+
+        List<String> permittedUrls = Arrays.asList("/auth/", "/code/");
+
+        http
+                .addFilterBefore(refreshTokenFilter(), UsernamePasswordAuthenticationFilter.class)
+                .addFilterBefore(jwtAuthorizationFilter(permittedUrls), RefreshTokenFilter.class)
+                .addFilterBefore(jwtAuthenticationFilter("/auth/login"), JwtAuthorizationFilter.class)
+
                 .exceptionHandling(e -> {
                     e.accessDeniedHandler(http403Handler);
                     e.authenticationEntryPoint(http401Handler);
@@ -63,33 +67,18 @@ public class SecurityConfig {
                 .httpBasic(AbstractHttpConfigurer::disable)
                 .formLogin(AbstractHttpConfigurer::disable)
                 .csrf(AbstractHttpConfigurer::disable)
-                .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
-                .build();
+                .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS));
+
+        return http.build();
+
     }
 
-    @Bean
-    public JwtAuthenticationFilter jwtAuthenticationFilter() {
-        JwtAuthenticationFilter filter = new JwtAuthenticationFilter(objectMapper, "/auth/login");
-        filter.setAuthenticationManager(authenticationManager());
-        filter.setAuthenticationSuccessHandler(loginSuccessHandler);
-        filter.setAuthenticationFailureHandler(loginFailHandler);
-        return filter;
-    }
-
-    @Bean
-    public AuthenticationManager authenticationManager() {
-        DaoAuthenticationProvider provider = new DaoAuthenticationProvider();
-        provider.setUserDetailsService(authenticationUserDetailsService(memberRepository));
-        provider.setPasswordEncoder(passwordEncoder());
-        return new ProviderManager(provider);
-    }
-
-    @Bean
-    public UserDetailsService authenticationUserDetailsService(MemberRepository memberRepository) {
-        return email -> {
-            Member member = memberRepository.findByEmail(email).orElseThrow(MemberNotFound::new);
-            return new MemberPrincipal(member);
-        };
+    private JwtAuthenticationFilter jwtAuthenticationFilter(String loginUrl) {
+        JwtAuthenticationFilter jwtAuthenticationFilter = new JwtAuthenticationFilter(
+                loginUrl, objectMapper, memberRepository, passwordEncoder());
+        jwtAuthenticationFilter.setAuthenticationSuccessHandler(loginSuccessHandler);
+        jwtAuthenticationFilter.setAuthenticationFailureHandler(loginFailHandler);
+        return jwtAuthenticationFilter;
     }
 
     @Bean
@@ -97,18 +86,23 @@ public class SecurityConfig {
         return new BCryptPasswordEncoder();
     }
 
-    @Bean
-    public JwtAuthorizationFilter jwtAuthorizationFilter() {
+    private JwtAuthorizationFilter jwtAuthorizationFilter(List<String> permittedUrls) {
         return new JwtAuthorizationFilter(
-                jwtUtil, authUtil, authProperty, authorizationUserDetailsService()
+                jwtUtil, authUtil, authProperty, authorizationUserDetailsService(), permittedUrls
         );
     }
 
-    @Bean
-    public UserDetailsService authorizationUserDetailsService() {
+    private UserDetailsService authorizationUserDetailsService() {
         return id -> {
             Member member = memberRepository.findById(Long.parseLong(id)).orElseThrow(MemberNotFound::new);
             return new MemberPrincipal(member);
         };
     }
+
+    private RefreshTokenFilter refreshTokenFilter() {
+        return new RefreshTokenFilter(
+                authUtil, jwtUtil, authProperty, jwtProperty, refreshTokenService
+        );
+    }
+
 }

@@ -37,6 +37,10 @@ Content-Type: application/json
   "password": "1234"
 }
 
-### test
-GET http://localhost:8080/auth/test
+### logout
+DELETE http://localhost:8080/auth/logout
+Content-Type: application/json
+
+### test2
+GET http://localhost:8080/notauth/test
 Content-Type: application/json

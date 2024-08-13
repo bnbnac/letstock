@@ -9,6 +9,7 @@ import org.springframework.boot.context.properties.ConfigurationProperties;
 @ConfigurationProperties(prefix = "auth")
 public class AuthProperty {
 
+    public static final String EXPIRED_TOKEN = "expired";
     public static final String ID = "id";
     public static final String MAIL_SENDER = "tftad.com@gmail.com";
 
@@ -18,5 +19,7 @@ public class AuthProperty {
     private String sameSite;
     private String accessTokenCookieName;
     private Long accessTokenCookieMaxAgeInDays;
+    private String refreshTokenCookieName;
+    private Long refreshTokenCookieMaxAgeInDays;
 
 }
