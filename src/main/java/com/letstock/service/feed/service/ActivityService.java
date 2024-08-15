@@ -10,8 +10,8 @@ import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
-import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 
 @RequiredArgsConstructor
 @Service
@@ -24,17 +24,15 @@ public class ActivityService {
     @Transactional
     public void act(Long memberId, Long targetId, ActivityType type) {
         List<Long> followerIds = followService.getFollowersOf(memberId);
-        List<Feed> feeds = new ArrayList<>();
 
         Long id = activityRepository.save(createActivity(memberId, targetId, type)).getId();
 
-        for (Long followerId : followerIds) {
-            feeds.add(createFeed(followerId, id));
-        }
+        List<Feed> feeds = followerIds.stream()
+                .map(followerId -> createFeed(followerId, id))
+                .collect(Collectors.toList());
 
         // batch? bulk?
         feedRepository.saveAll(feeds);
-
     }
 
     private Activity createActivity(Long memberId, Long targetId, ActivityType type) {
