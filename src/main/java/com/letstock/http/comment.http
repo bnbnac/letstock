@@ -1,0 +1,16 @@
+### login
+POST http://localhost:8080/auth/login
+Content-Type: application/json
+
+{
+  "email": "seongjin0000@gmail.com",
+  "password": "1234"
+}
+
+### comment
+POST http://localhost:8080/comments/4
+Content-Type: application/json
+
+{
+  "content": "comment content"
+}
