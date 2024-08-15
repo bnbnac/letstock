@@ -12,6 +12,6 @@ POST http://localhost:8080/posts
 Content-Type: application/json
 
 {
-  "title": "title",
-  "content": "content"
+  "title": "no builder",
+  "content": "no builder"
 }
