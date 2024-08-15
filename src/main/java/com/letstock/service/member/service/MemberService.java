@@ -1,14 +1,12 @@
 package com.letstock.service.member.service;
 
 import com.letstock.service.common.InvalidRequest;
-import com.letstock.service.member.config.security.MemberPrincipal;
 import com.letstock.service.member.domain.Member;
 import com.letstock.service.member.domain.MemberEditor;
 import com.letstock.service.member.dto.request.MemberEdit;
 import com.letstock.service.member.exception.MemberNotFound;
 import com.letstock.service.member.repository.MemberRepository;
 import lombok.RequiredArgsConstructor;
-import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -21,9 +19,9 @@ public class MemberService {
     private final PasswordEncoder passwordEncoder;
 
     @Transactional
-    public void edit(Long id, MemberEdit memberEdit, @AuthenticationPrincipal MemberPrincipal memberPrincipal) {
-        validateMemberOwner(id, memberPrincipal.getId());
-        Member member = findMember(memberPrincipal);
+    public void edit(Long id, MemberEdit memberEdit, Long memberId) {
+        validateMemberOwner(id, memberId);
+        Member member = findMember(memberId);
 
         String password = null;
         if (memberEdit.getPassword() != null) {
@@ -33,8 +31,8 @@ public class MemberService {
         member.edit(memberEditor);
     }
 
-    public Member findMember(MemberPrincipal memberPrincipal) {
-        return memberRepository.findById(memberPrincipal.getId()).orElseThrow(MemberNotFound::new);
+    public Member findMember(Long memberId) {
+        return memberRepository.findById(memberId).orElseThrow(MemberNotFound::new);
     }
 
     private void validateMemberOwner(Long ownerId, Long requesterId) {

@@ -19,7 +19,7 @@ public class MemberController {
     @PatchMapping("/members/{id}")
     public void edit(@RequestBody MemberEdit memberEdit, @PathVariable Long id,
                      @AuthenticationPrincipal MemberPrincipal memberPrincipal) {
-        memberService.edit(id, memberEdit, memberPrincipal);
+        memberService.edit(id, memberEdit, memberPrincipal.getId());
     }
 
 }

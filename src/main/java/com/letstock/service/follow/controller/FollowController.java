@@ -1,6 +1,5 @@
 package com.letstock.service.follow.controller;
 
-import com.letstock.service.common.InvalidRequest;
 import com.letstock.service.feed.domain.ActivityType;
 import com.letstock.service.feed.service.ActivityService;
 import com.letstock.service.follow.service.FollowService;
