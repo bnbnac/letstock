@@ -7,11 +7,11 @@ import com.letstock.service.member.domain.MemberEditor;
 import com.letstock.service.member.dto.request.MemberEdit;
 import com.letstock.service.member.exception.MemberNotFound;
 import com.letstock.service.member.repository.MemberRepository;
-import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 @RequiredArgsConstructor
 @Service

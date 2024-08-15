@@ -17,6 +17,12 @@ import jakarta.servlet.http.HttpServletResponse;
 import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContext;
+import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.web.filter.OncePerRequestFilter;
 
 import java.io.IOException;
@@ -32,6 +38,7 @@ public class RefreshTokenFilter extends OncePerRequestFilter {
     private final AuthProperty authProperty;
     private final JwtProperty jwtProperty;
     private final RefreshTokenService refreshTokenService;
+    private final UserDetailsService userDetailsService;
 
     @Override
     protected void doFilterInternal(
@@ -64,6 +71,7 @@ public class RefreshTokenFilter extends OncePerRequestFilter {
             response.setStatus(SC_OK);
             response.addCookie(accessTokenCookie);
 
+            setAuthentication(memberId);
             filterChain.doFilter(request, response);
         } catch (Exception e) {
             logger.error("Error processing refresh token", e);
@@ -82,5 +90,18 @@ public class RefreshTokenFilter extends OncePerRequestFilter {
                 authProperty.getAccessTokenCookieMaxAgeInDays()
         );
     }
+
+    private void setAuthentication(String id) {
+        SecurityContext context = SecurityContextHolder.createEmptyContext();
+        context.setAuthentication(createAuthentication(id));
+
+        SecurityContextHolder.setContext(context);
+    }
+
+    private Authentication createAuthentication(String id) {
+        UserDetails userDetails = userDetailsService.loadUserByUsername(id);
+        return new UsernamePasswordAuthenticationToken(userDetails, "", userDetails.getAuthorities());
+    }
+
 
 }

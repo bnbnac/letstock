@@ -101,7 +101,7 @@ public class SecurityConfig {
 
     private RefreshTokenFilter refreshTokenFilter() {
         return new RefreshTokenFilter(
-                authUtil, jwtUtil, authProperty, jwtProperty, refreshTokenService
+                authUtil, jwtUtil, authProperty, jwtProperty, refreshTokenService, authorizationUserDetailsService()
         );
     }
 
