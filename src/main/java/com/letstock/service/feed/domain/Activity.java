@@ -23,19 +23,23 @@ public class Activity {
     private LocalDateTime createdAt;
 
     private Long memberId;
+    
+    private Long targetOwnerId;
 
     private Long targetId;
 
     private ActivityType type;
 
     @Builder
-    public Activity(Long memberId, Long targetId, ActivityType type) {
+    public Activity(Long memberId, Long targetOwnerId, Long targetId, ActivityType type) {
         Assert.notNull(memberId, "memberId must not be null");
+        Assert.notNull(targetOwnerId, "targetOwnerId must not be null");
         Assert.notNull(targetId, "targetId must not be null");
         Assert.notNull(type, "type must not be null");
 
         this.createdAt = LocalDateTime.now();
         this.memberId = memberId;
+        this.targetOwnerId = targetOwnerId;
         this.targetId = targetId;
         this.type = type;
     }

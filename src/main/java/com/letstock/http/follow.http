@@ -11,14 +11,6 @@ Content-Type: application/json
 POST http://localhost:8080/follows/1
 Content-Type: application/json
 
-{
-  "password": "1234"
-}
-
 ### follow
 POST http://localhost:8080/follows/2
 Content-Type: application/json
-
-{
-  "password": "1234"
-}

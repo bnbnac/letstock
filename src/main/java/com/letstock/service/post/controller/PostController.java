@@ -24,7 +24,7 @@ public class PostController {
                      @AuthenticationPrincipal MemberPrincipal memberPrincipal) {
         Long memberId = memberPrincipal.getId();
         Long id = postService.write(postCreate, memberId);
-        activityService.act(memberId, id, ActivityType.POST);
+        activityService.act(memberId, memberId, id, ActivityType.POST);
     }
 
 }

@@ -2,6 +2,7 @@ package com.letstock.service.post.service;
 
 import com.letstock.service.post.domain.Post;
 import com.letstock.service.post.dto.request.PostCreate;
+import com.letstock.service.post.exception.PostNotFound;
 import com.letstock.service.post.respository.PostRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -23,4 +24,10 @@ public class PostService {
                 .memberId(memberId)
                 .build();
     }
+
+    public Long getOwnerId(Long postId) {
+        Post post = postRepository.findById(postId).orElseThrow(PostNotFound::new);
+        return post.getMemberId();
+    }
+
 }

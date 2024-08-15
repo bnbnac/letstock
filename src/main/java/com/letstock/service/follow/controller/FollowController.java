@@ -22,7 +22,7 @@ public class FollowController {
                        @AuthenticationPrincipal MemberPrincipal memberPrincipal) {
         Long fromMemberId = memberPrincipal.getId();
         followService.follow(fromMemberId, toMemberId);
-        activityService.act(fromMemberId, toMemberId, ActivityType.FOLLOW);
+        activityService.act(fromMemberId, toMemberId, toMemberId, ActivityType.FOLLOW);
     }
 
 }

@@ -22,10 +22,10 @@ public class ActivityService {
     private final FeedRepository feedRepository;
 
     @Transactional
-    public void act(Long memberId, Long targetId, ActivityType type) {
+    public void act(Long memberId, Long targetOwnerId, Long targetId, ActivityType type) {
         List<Long> followerIds = followService.getFollowersOf(memberId);
 
-        Long id = activityRepository.save(createActivity(memberId, targetId, type)).getId();
+        Long id = activityRepository.save(createActivity(memberId, targetOwnerId, targetId, type)).getId();
 
         List<Feed> feeds = followerIds.stream()
                 .map(followerId -> createFeed(followerId, id))
@@ -35,9 +35,10 @@ public class ActivityService {
         feedRepository.saveAll(feeds);
     }
 
-    private Activity createActivity(Long memberId, Long targetId, ActivityType type) {
+    private Activity createActivity(Long memberId, Long targetOwnerId, Long targetId, ActivityType type) {
         return Activity.builder()
                 .memberId(memberId)
+                .targetOwnerId(targetOwnerId)
                 .targetId(targetId)
                 .type(type)
                 .build();
