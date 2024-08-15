@@ -22,9 +22,6 @@ public class FollowController {
     public void follow(@PathVariable Long toMemberId,
                        @AuthenticationPrincipal MemberPrincipal memberPrincipal) {
         Long fromMemberId = memberPrincipal.getId();
-        if (fromMemberId.equals(toMemberId)) {
-            throw new InvalidRequest("toMemberId", "cannot follow myself");
-        }
         followService.follow(fromMemberId, toMemberId);
         activityService.act(fromMemberId, toMemberId, ActivityType.FOLLOW);
     }

@@ -3,6 +3,7 @@ package com.letstock.service.follow.service;
 import com.letstock.service.common.InvalidRequest;
 import com.letstock.service.follow.domain.Follow;
 import com.letstock.service.follow.repository.FollowRepository;
+import io.jsonwebtoken.lang.Assert;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
@@ -15,11 +16,23 @@ public class FollowService {
     private final FollowRepository followRepository;
 
     public void follow(Long fromMemberId, Long toMemberId) {
-        validateExistence(fromMemberId, toMemberId);
+        validateToMemberId(fromMemberId, toMemberId);
         followRepository.save(createFollow(fromMemberId, toMemberId));
     }
 
-    private void validateExistence(Long fromMemberId, Long toMemberId) {
+    private void validateToMemberId(Long fromMemberId, Long toMemberId) {
+        Assert.notNull(toMemberId, "toMemberId must not be null");
+        validateFollowMyself(fromMemberId, toMemberId);
+        validateFollowAlready(fromMemberId, toMemberId);
+    }
+
+    private void validateFollowMyself(Long fromMemberId, Long toMemberId) {
+        if (fromMemberId.equals(toMemberId)) {
+            throw new InvalidRequest("toMemberId", "cannot follow myself");
+        }
+    }
+
+    private void validateFollowAlready(Long fromMemberId, Long toMemberId) {
         if (followRepository.existsByFromMemberIdAndToMemberId(fromMemberId, toMemberId)) {
             throw new InvalidRequest("toMemberId", "already followed member");
         }
