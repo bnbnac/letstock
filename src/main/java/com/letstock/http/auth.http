@@ -3,7 +3,7 @@ POST http://localhost:8080/code/mail
 Content-Type: application/json
 
 {
-  "email": "seongjin0000@gmail.com123"
+  "email": "bnbnac@naver.com"
 }
 
 ### verify
@@ -11,8 +11,8 @@ POST http://localhost:8080/code/mail/verification
 Content-Type: application/json
 
 {
-  "email": "seongjin0000@gmail.com",
-  "code": "78619971"
+  "email": "bnbnac@naver.com",
+  "code": "79193391"
 }
 
 ### signup
@@ -20,12 +20,12 @@ POST http://localhost:8080/auth/signup
 Content-Type: application/json
 
 {
-  "email": "seongjin0000@gmail.com",
+  "email": "bnbnac@naver.com",
   "password": "1234",
   "name": "hello",
   "profileImage": "imgurl",
   "greetings": "hi there",
-  "code": "78619971"
+  "code": "79193391"
 }
 
 ### login

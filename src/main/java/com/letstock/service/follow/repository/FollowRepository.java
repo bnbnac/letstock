@@ -10,4 +10,6 @@ import java.util.List;
 public interface FollowRepository extends CrudRepository<Follow, Long> {
     @Query("SELECT f.fromMemberId FROM Follow f WHERE f.toMemberId = :toMemberId")
     List<Long> findAllFromMemberIdsByToMemberId(@Param("toMemberId") Long toMemberId);
+
+    boolean existsByFromMemberIdAndToMemberId(Long fromMemberId, Long toMemberId);
 }

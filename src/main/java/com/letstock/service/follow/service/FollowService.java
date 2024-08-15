@@ -1,5 +1,6 @@
 package com.letstock.service.follow.service;
 
+import com.letstock.service.common.InvalidRequest;
 import com.letstock.service.follow.domain.Follow;
 import com.letstock.service.follow.repository.FollowRepository;
 import lombok.RequiredArgsConstructor;
@@ -13,12 +14,18 @@ public class FollowService {
 
     private final FollowRepository followRepository;
 
-    public void follow(Long toMemberId, Long fromMemberId) {
-        Follow follow = createFollow(toMemberId, fromMemberId);
-        followRepository.save(follow);
+    public void follow(Long fromMemberId, Long toMemberId) {
+        validateExistence(fromMemberId, toMemberId);
+        followRepository.save(createFollow(fromMemberId, toMemberId));
     }
 
-    private Follow createFollow(Long toMemberId, Long fromMemberId) {
+    private void validateExistence(Long fromMemberId, Long toMemberId) {
+        if (followRepository.existsByFromMemberIdAndToMemberId(fromMemberId, toMemberId)) {
+            throw new InvalidRequest("toMemberId", "already followed member");
+        }
+    }
+
+    private Follow createFollow(Long fromMemberId, Long toMemberId) {
         return Follow.builder()
                 .fromMemberId(fromMemberId)
                 .toMemberId(toMemberId)

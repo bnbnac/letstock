@@ -30,7 +30,7 @@ public class CodeController {
     }
 
     @PostMapping("/code/mail/verification")
-    public void mailVerify(@RequestBody MailVerify mailVerify) {
+    public void mailVerify(@RequestBody @Valid MailVerify mailVerify) {
         codeService.verify(mailVerify.getCode(), mailVerify.getEmail());
     }
 }
