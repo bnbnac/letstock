@@ -2,6 +2,7 @@ package com.letstock.service.comment.service;
 
 import com.letstock.service.comment.domain.Comment;
 import com.letstock.service.comment.dto.request.CommentCreate;
+import com.letstock.service.comment.exception.CommentNotFound;
 import com.letstock.service.comment.repository.CommentRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -25,4 +26,8 @@ public class CommentService {
                 .build();
     }
 
+    public Long getOwnerId(Long commentId) {
+        Comment comment = commentRepository.findById(commentId).orElseThrow(CommentNotFound::new);
+        return comment.getMemberId();
+    }
 }

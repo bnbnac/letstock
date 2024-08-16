@@ -8,9 +8,9 @@ Content-Type: application/json
 }
 
 ### comment
-POST http://localhost:8080/comments/4
+POST http://localhost:8080/comments/1
 Content-Type: application/json
 
 {
-  "content": "comment content"
+  "content": "hello comment"
 }

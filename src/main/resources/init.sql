@@ -12,76 +12,97 @@ CREATE SEQUENCE follows_id_seq START WITH 1 INCREMENT BY 1;
 
 CREATE TABLE members
 (
-    id            BIGINT NOT NULL DEFAULT nextval('members_id_seq') PRIMARY KEY,
-    created_at    TIMESTAMP NULL,
-    updated_at    TIMESTAMP NULL,
-    email         VARCHAR(255) NULL,
-    password      VARCHAR(255) NULL,
-    name          VARCHAR(50) NULL,
-    profile_image VARCHAR(255) NULL,
-    greetings     VARCHAR(100) NULL
-);
-
-CREATE TABLE refresh_tokens
-(
-    id          BIGINT NOT NULL DEFAULT nextval('refresh_tokens_id_seq') PRIMARY KEY,
-    member_id   BIGINT NOT NULL,
-    created_at  TIMESTAMP NULL,
-    token       VARCHAR(255) NULL,
-    expiry_date TIMESTAMP NULL
-);
-
-CREATE TABLE feeds
-(
-    id          BIGINT NOT NULL DEFAULT nextval('feeds_id_seq') PRIMARY KEY,
-    member_id   BIGINT NOT NULL,
-    activity_id BIGINT NOT NULL,
-    created_at  TIMESTAMP NULL
-);
-
-CREATE TABLE activities
-(
-    id         BIGINT NOT NULL DEFAULT nextval('activities_id_seq') PRIMARY KEY,
-    member_id  BIGINT NOT NULL,
-    target_id  BIGINT NULL,
-    type       activity_type,
-    created_at TIMESTAMP NULL
-);
-
-CREATE TABLE comments
-(
-    id         BIGINT NOT NULL DEFAULT nextval('comments_id_seq') PRIMARY KEY,
-    member_id  BIGINT NOT NULL,
-    post_id    BIGINT NOT NULL,
-    created_at TIMESTAMP NULL,
-    updated_at TIMESTAMP NULL,
-    content    VARCHAR(255) NULL
-);
-
-CREATE TABLE likes
-(
-    id         BIGINT NOT NULL DEFAULT nextval('likes_id_seq') PRIMARY KEY,
-    member_id  BIGINT NOT NULL,
-    target_id  BIGINT NULL,
-    type       like_type,
-    created_at TIMESTAMP NULL,
-    updated_at TIMESTAMP NULL
+    id            BIGINT PRIMARY KEY,
+    created_at    TIMESTAMP,
+    updated_at    TIMESTAMP,
+    email         VARCHAR(255),
+    password      VARCHAR(255),
+    name          VARCHAR(50),
+    profile_image VARCHAR(255),
+    greetings     VARCHAR(100)
 );
 
 CREATE TABLE posts
 (
-    id         BIGINT NOT NULL DEFAULT nextval('posts_id_seq') PRIMARY KEY,
-    member_id  BIGINT NOT NULL,
-    created_at TIMESTAMP NULL,
-    updated_at TIMESTAMP NULL,
-    title      VARCHAR(255) NULL,
-    content    TEXT NULL
+    id         BIGINT PRIMARY KEY,
+    member_id  BIGINT,
+    created_at TIMESTAMP,
+    updated_at TIMESTAMP,
+    title      VARCHAR(255),
+    content    TEXT,
+    FOREIGN KEY (member_id) REFERENCES members (id)
+);
+
+CREATE TABLE comments
+(
+    id         BIGINT PRIMARY KEY,
+    member_id  BIGINT,
+    post_id    BIGINT,
+    created_at TIMESTAMP,
+    updated_at TIMESTAMP,
+    content    VARCHAR(255),
+    FOREIGN KEY (member_id) REFERENCES members (id),
+    FOREIGN KEY (post_id) REFERENCES posts (id)
+);
+
+CREATE TABLE likes
+(
+    id         BIGINT PRIMARY KEY,
+    member_id  BIGINT,
+    target_id  BIGINT,
+    type       like_type,
+    created_at TIMESTAMP,
+    FOREIGN KEY (member_id) REFERENCES members (id)
 );
 
 CREATE TABLE follows
 (
-    id             BIGINT NOT NULL DEFAULT nextval('follows_id_seq') PRIMARY KEY,
-    from_member_id BIGINT NOT NULL,
-    to_member_id   BIGINT NOT NULL,
-    created_at     TIMESTAMP NULL
+    id             BIGINT PRIMARY KEY,
+    from_member_id BIGINT,
+    to_member_id   BIGINT,
+    created_at     TIMESTAMP,
+    FOREIGN KEY (from_member_id) REFERENCES members (id),
+    FOREIGN KEY (to_member_id) REFERENCES members (id)
+);
+
+CREATE TABLE activities
+(
+    id              BIGINT PRIMARY KEY,
+    member_id       BIGINT,
+    target_owner_id BIGINT,
+    target_id       BIGINT,
+    type            activity_type,
+    created_at      TIMESTAMP,
+    FOREIGN KEY (member_id) REFERENCES members (id),
+    FOREIGN KEY (target_owner_id) REFERENCES members (id)
+);
+
+CREATE TABLE feeds
+(
+    id          BIGINT PRIMARY KEY,
+    member_id   BIGINT,
+    activity_id BIGINT,
+    created_at  TIMESTAMP,
+    FOREIGN KEY (member_id) REFERENCES members (id),
+    FOREIGN KEY (activity_id) REFERENCES activities (id)
+);
+
+CREATE TABLE refresh_tokens
+(
+    id          BIGINT PRIMARY KEY,
+    member_id   BIGINT,
+    created_at  TIMESTAMP,
+    token       VARCHAR(255),
+    expiry_date TIMESTAMP,
+    FOREIGN KEY (member_id) REFERENCES members (id)
+);
+
+CREATE TABLE codes
+(
+    id          BIGINT PRIMARY KEY,
+    code        VARCHAR(50),
+    email       VARCHAR(255),
+    authed      BOOLEAN,
+    created_at  TIMESTAMP,
+    expiry_date TIMESTAMP
 );

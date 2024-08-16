@@ -24,8 +24,8 @@ public class FeedService {
                 .map(result -> {
                     Activity activity = (Activity) result[0];
                     String actMemberName = (String) result[1];
-                    String targetOwnerName = (String) result[2];
-                    return new ActivityResponse(activity, actMemberName, targetOwnerName);
+                    String targetBaseOwnerName = (String) result[2];
+                    return new ActivityResponse(activity, actMemberName, targetBaseOwnerName);
                 })
                 .collect(Collectors.toList());
     }
