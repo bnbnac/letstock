@@ -1,1 +1,5 @@
 rootProject.name = 'letstock'
+include 'mod2'
+include 'mod1'
+include 'mod3'
+

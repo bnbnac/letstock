@@ -1,0 +1,12 @@
+### login
+POST http://localhost:8080/auth/login
+Content-Type: application/json
+
+{
+  "email": "bnbnac@naver.com",
+  "password": "1234"
+}
+
+### feed
+GET http://localhost:8080/feeds
+Content-Type: application/json

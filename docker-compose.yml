@@ -4,33 +4,64 @@ services:
     image: postgres:16-alpine
     environment:
       POSTGRES_DB: ${POSTGRES_DB}
+      POSTGRES_USER: ${POSTGRES_USER}
       POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
       TZ: Asia/Seoul
     ports:
       - "5432:5432"
     volumes:
       - db_data:/var/lib/postgresql/data
-      - ./src/main/resources/init.sql:/docker-entrypoint-initdb.d/init.sql # docker-compose down -v 조심
+      - .mod1/src/main/resources/init.sql:/docker-entrypoint-initdb.d/init.sql
     healthcheck:
       test: [ "CMD-SHELL", "pg_isready -U postgres -d ${POSTGRES_DB} -h localhost" ]
       interval: 5s
       retries: 10
       start_period: 10s
 
-#  app:
-#    build:
-#      context: .
-#      dockerfile: Dockerfile
-#    environment:
-#       SPRING_DATASOURCE_URL: jdbc:postgresql://db:5432/${POSTGRES_DB}
-#       SPRING_DATASOURCE_USERNAME: ${SPRING_DATASOURCE_USERNAME} # POSTGRES_USER <- super user
-#       SPRING_DATASOURCE_PASSWORD: ${SPRING_DATASOURCE_PASSWORD} # 배포시엔 스크립트로 db 컨테이너에서 일반유저를 만든다?
-#       TZ: Asia/Seoul
-#    ports:
-#      - "8080:8080"
-#    depends_on:
-#      db:
-#        condition: service_healthy
+  mod1:
+    build:
+      context: ./mod1/
+      dockerfile: Dockerfile
+    environment:
+       SPRING_DATASOURCE_URL: jdbc:postgresql://db:5432/${POSTGRES_DB}
+       SPRING_DATASOURCE_USERNAME: ${SPRING_DATASOURCE_USERNAME}
+       SPRING_DATASOURCE_PASSWORD: ${SPRING_DATASOURCE_PASSWORD}
+       TZ: Asia/Seoul
+    ports:
+      - "8081:8081"
+    depends_on:
+      db:
+        condition: service_healthy
+
+  mod2:
+    build:
+      context: ./mod2/
+      dockerfile: Dockerfile
+    environment:
+      SPRING_DATASOURCE_URL: jdbc:postgresql://db:5432/${POSTGRES_DB}
+      SPRING_DATASOURCE_USERNAME: ${SPRING_DATASOURCE_USERNAME}
+      SPRING_DATASOURCE_PASSWORD: ${SPRING_DATASOURCE_PASSWORD}
+      TZ: Asia/Seoul
+    ports:
+      - "8082:8082"
+    depends_on:
+      db:
+        condition: service_healthy
+
+  mod3:
+    build:
+      context: ./mod3/
+      dockerfile: Dockerfile
+    environment:
+      SPRING_DATASOURCE_URL: jdbc:postgresql://db:5432/${POSTGRES_DB}
+      SPRING_DATASOURCE_USERNAME: ${SPRING_DATASOURCE_USERNAME}
+      SPRING_DATASOURCE_PASSWORD: ${SPRING_DATASOURCE_PASSWORD}
+      TZ: Asia/Seoul
+    ports:
+      - "8083:8083"
+    depends_on:
+      db:
+        condition: service_healthy
 
 volumes:
   db_data:
