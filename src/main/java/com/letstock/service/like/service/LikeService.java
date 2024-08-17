@@ -24,7 +24,7 @@ public class LikeService {
 
     private void validateLikeAlready(LikeType type, Long targetId, Long memberId) {
         likeRepository.findByTypeAndTargetIdAndMemberId(type, targetId, memberId).ifPresent(like -> {
-            throw new InvalidRequest("targetId", "you already liked");
+            throw new InvalidRequest("targetId", "already liked");
         });
     }
 

@@ -7,6 +7,16 @@ Content-Type: application/json
   "password": "1234"
 }
 
+### login
+POST http://localhost:8080/auth/login
+Content-Type: application/json
+
+{
+  "email": "john.doe@example.com",
+  "password": "1234"
+}
+
+
 ### follow myself
 POST http://localhost:8080/follows/1
 Content-Type: application/json

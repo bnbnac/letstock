@@ -11,6 +11,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 @RequiredArgsConstructor
@@ -23,13 +24,14 @@ public class ActivityService {
 
     @Transactional
     public void act(Long memberId, Long targetBaseOwnerId, Long targetId, ActivityType type) {
-        List<Long> followerIds = followService.getFollowersOf(memberId);
-
         Long id = activityRepository.save(createActivity(memberId, targetBaseOwnerId, targetId, type)).getId();
 
-        List<Feed> feeds = followerIds.stream()
-                .map(followerId -> createFeed(followerId, id))
-                .collect(Collectors.toList());
+        List<Long> needFeedIds = followService.getFollowersOf(memberId);
+        needFeedIds.add(targetBaseOwnerId);
+
+        Set<Feed> feeds = needFeedIds.stream()
+                .map(needFeedId -> createFeed(needFeedId, id))
+                .collect(Collectors.toSet());
 
         // batch? bulk?
         feedRepository.saveAll(feeds);

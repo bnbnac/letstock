@@ -7,10 +7,19 @@ Content-Type: application/json
   "password": "1234"
 }
 
-### comment
-POST http://localhost:8080/comments/1
+### login
+POST http://localhost:8080/auth/login
 Content-Type: application/json
 
 {
-  "content": "hello comment"
+  "email": "john.doe@example.com",
+  "password": "1234"
+}
+
+### comment
+POST http://localhost:8080/comments/4
+Content-Type: application/json
+
+{
+  "content": "john's comment"
 }
