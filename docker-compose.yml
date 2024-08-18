@@ -11,31 +11,16 @@ services:
       - "5432:5432"
     volumes:
       - db_data:/var/lib/postgresql/data
-      - .mod1/src/main/resources/init.sql:/docker-entrypoint-initdb.d/init.sql
+      - ./init.sql:/docker-entrypoint-initdb.d/init.sql
     healthcheck:
       test: [ "CMD-SHELL", "pg_isready -U postgres -d ${POSTGRES_DB} -h localhost" ]
       interval: 5s
       retries: 10
       start_period: 10s
 
-  mod1:
+  member-service:
     build:
-      context: ./mod1/
-      dockerfile: Dockerfile
-    environment:
-       SPRING_DATASOURCE_URL: jdbc:postgresql://db:5432/${POSTGRES_DB}
-       SPRING_DATASOURCE_USERNAME: ${SPRING_DATASOURCE_USERNAME}
-       SPRING_DATASOURCE_PASSWORD: ${SPRING_DATASOURCE_PASSWORD}
-       TZ: Asia/Seoul
-    ports:
-      - "8081:8081"
-    depends_on:
-      db:
-        condition: service_healthy
-
-  mod2:
-    build:
-      context: ./mod2/
+      context: ./member-service/
       dockerfile: Dockerfile
     environment:
       SPRING_DATASOURCE_URL: jdbc:postgresql://db:5432/${POSTGRES_DB}
@@ -43,14 +28,29 @@ services:
       SPRING_DATASOURCE_PASSWORD: ${SPRING_DATASOURCE_PASSWORD}
       TZ: Asia/Seoul
     ports:
+      - "8081:8081"
+    depends_on:
+      db:
+        condition: service_healthy
+
+  activity-service:
+    build:
+      context: ./activity-service/
+      dockerfile: Dockerfile
+    environment:
+       SPRING_DATASOURCE_URL: jdbc:postgresql://db:5432/${POSTGRES_DB}
+       SPRING_DATASOURCE_USERNAME: ${SPRING_DATASOURCE_USERNAME}
+       SPRING_DATASOURCE_PASSWORD: ${SPRING_DATASOURCE_PASSWORD}
+       TZ: Asia/Seoul
+    ports:
       - "8082:8082"
     depends_on:
       db:
         condition: service_healthy
 
-  mod3:
+  feed-service:
     build:
-      context: ./mod3/
+      context: ./feed-service/
       dockerfile: Dockerfile
     environment:
       SPRING_DATASOURCE_URL: jdbc:postgresql://db:5432/${POSTGRES_DB}

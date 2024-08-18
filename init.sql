@@ -9,10 +9,11 @@ CREATE SEQUENCE comments_id_seq START WITH 1 INCREMENT BY 1;
 CREATE SEQUENCE likes_id_seq START WITH 1 INCREMENT BY 1;
 CREATE SEQUENCE posts_id_seq START WITH 1 INCREMENT BY 1;
 CREATE SEQUENCE follows_id_seq START WITH 1 INCREMENT BY 1;
+CREATE SEQUENCE codes_id_seq START WITH 1 INCREMENT BY 1;
 
 CREATE TABLE members
 (
-    id            BIGINT PRIMARY KEY,
+    id            BIGINT PRIMARY KEY DEFAULT nextval('members_id_seq'),
     created_at    TIMESTAMP,
     updated_at    TIMESTAMP,
     email         VARCHAR(255),
@@ -24,7 +25,7 @@ CREATE TABLE members
 
 CREATE TABLE posts
 (
-    id         BIGINT PRIMARY KEY,
+    id         BIGINT PRIMARY KEY DEFAULT nextval('posts_id_seq'),
     member_id  BIGINT,
     created_at TIMESTAMP,
     updated_at TIMESTAMP,
@@ -35,7 +36,7 @@ CREATE TABLE posts
 
 CREATE TABLE comments
 (
-    id         BIGINT PRIMARY KEY,
+    id         BIGINT PRIMARY KEY DEFAULT nextval('comments_id_seq'),
     member_id  BIGINT,
     post_id    BIGINT,
     created_at TIMESTAMP,
@@ -47,7 +48,7 @@ CREATE TABLE comments
 
 CREATE TABLE likes
 (
-    id         BIGINT PRIMARY KEY,
+    id         BIGINT PRIMARY KEY DEFAULT nextval('likes_id_seq'),
     member_id  BIGINT,
     target_id  BIGINT,
     type       like_type,
@@ -57,7 +58,7 @@ CREATE TABLE likes
 
 CREATE TABLE follows
 (
-    id             BIGINT PRIMARY KEY,
+    id             BIGINT PRIMARY KEY DEFAULT nextval('follows_id_seq'),
     from_member_id BIGINT,
     to_member_id   BIGINT,
     created_at     TIMESTAMP,
@@ -67,19 +68,19 @@ CREATE TABLE follows
 
 CREATE TABLE activities
 (
-    id              BIGINT PRIMARY KEY,
-    member_id       BIGINT,
-    target_owner_id BIGINT,
-    target_id       BIGINT,
-    type            activity_type,
-    created_at      TIMESTAMP,
+    id                   BIGINT PRIMARY KEY DEFAULT nextval('activities_id_seq'),
+    member_id            BIGINT,
+    target_base_owner_id BIGINT,
+    target_id            BIGINT,
+    type                 activity_type,
+    created_at           TIMESTAMP,
     FOREIGN KEY (member_id) REFERENCES members (id),
-    FOREIGN KEY (target_owner_id) REFERENCES members (id)
+    FOREIGN KEY (target_base_owner_id) REFERENCES members (id)
 );
 
 CREATE TABLE feeds
 (
-    id          BIGINT PRIMARY KEY,
+    id          BIGINT PRIMARY KEY DEFAULT nextval('feeds_id_seq'),
     member_id   BIGINT,
     activity_id BIGINT,
     created_at  TIMESTAMP,
@@ -89,7 +90,7 @@ CREATE TABLE feeds
 
 CREATE TABLE refresh_tokens
 (
-    id          BIGINT PRIMARY KEY,
+    id          BIGINT PRIMARY KEY DEFAULT nextval('refresh_tokens_id_seq'),
     member_id   BIGINT,
     created_at  TIMESTAMP,
     token       VARCHAR(255),
@@ -99,7 +100,7 @@ CREATE TABLE refresh_tokens
 
 CREATE TABLE codes
 (
-    id          BIGINT PRIMARY KEY,
+    id          BIGINT PRIMARY KEY DEFAULT nextval('codes_id_seq'),
     code        VARCHAR(50),
     email       VARCHAR(255),
     authed      BOOLEAN,
